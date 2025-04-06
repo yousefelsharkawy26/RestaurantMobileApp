@@ -1,0 +1,152 @@
+#:kivy 2.0.0
+#:import hex kivy.utils.get_color_from_hex
+#:import Animation kivy.animation.Animation
+
+<FilterSpinner@Spinner>:
+    font_name: 'Arial.ttf'
+    background_color: hex('#09122C')
+    background_normal: ''
+    background_down: ''
+    text_color: hex('#FFFFFF')
+    font_size: '16sp'
+    size_hint: None, None
+    size: dp(120), dp(40)
+    option_cls: 'SpinnerOption'
+    values: ['all', 'today', 'date']
+    markup: True
+
+<CustomButton>:
+    color: hex('#FFFFFF')
+    font_size: '16sp'
+    bold: True
+    size_hint: (None, None)
+    height: dp(40)
+    width: dp(150)
+    padding: (dp(15), dp(10))
+    canvas.before:
+        Color:
+            rgba: hex('#09122C') if self.state == 'normal' else hex('#1976D2')
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(20),]
+    canvas.after:
+        Color:
+            rgba: hex('#FFFFFF33') if self.state == 'down' else (0,0,0,0)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(20),]
+
+
+<MainLayout>:
+    orientation: 'vertical'
+    spacing: 10
+    padding: 10
+
+    BoxLayout:
+        size_hint_y: 0.1
+        spacing: 10
+        orientation: 'horizontal'
+        
+        Label:
+            font_name: 'Arial.ttf'
+            text:  app.arabic_converter('حالة الاتصال')
+            color: hex('#eeeeee')  
+            bold: True
+            font_size: '16sp'
+        
+        Label:
+            id: server_status
+            font_name: 'Arial.ttf'
+            text:  app.arabic_converter('غير متصل')
+            color: hex('#FF5252')  # أحمر
+            bold: True
+            font_size: '16sp'
+        
+        CustomButton:  # استبدال الزر القديم
+            font_name: 'Arial.ttf'
+            text: app.arabic_converter('اتصال')
+            on_press: app.check_server_status()
+            size_hint_x: None
+            width: dp(150)
+
+    BoxLayout:
+        size_hint_y: 0.1
+        spacing: 10
+        padding: 10
+        
+        FilterSpinner:
+            id: filter_spinner
+            font_name: 'Arial.ttf'
+            text: 'all'
+            on_text: app.filter_orders(self.text)
+
+    BoxLayout:
+        size_hint_y: 0.1
+        orientation: 'horizontal'
+        spacing: 10
+        
+        Label:
+            id: total_salary_label
+            text: '$0.00'
+            bold: True
+            font_size: '18sp'
+            color: 0, 0.5, 0, 1
+
+        Label:
+            font_name: 'arial.ttf'
+            text: app.arabic_converter('اجمالى السعر : ')
+            color: hex('#eeeeee')  
+            bold: True
+            halign: 'right'
+            font_size: '18sp'
+    
+    RV:
+        id: rv
+        viewclass: 'OrderRow'
+        RecycleBoxLayout:
+            default_size: None, dp(40)
+            default_size_hint: 1, None
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: 'vertical'
+
+<OrderRow>:
+    size_hint_y: None
+    height: dp(40)
+    spacing: 5
+    
+    Label:
+        font_name: 'Arial.ttf'
+        text: app.arabic_converter(root.userName)
+        color: hex('#eeeeee')  
+        size_hint_x: 0.15
+
+    Label:
+        text: root.orderDate[:10] if root.orderDate else ''
+        color: hex('#eeeeee')  
+        size_hint_x: 0.15
+    
+    Label:
+        font_name: 'arial.ttf'
+        text: app.arabic_converter('تم التسليم') if root.isPaid else app.arabic_converter('لم يتم التسليم')
+        color: hex('#eeeeee')  
+        size_hint_x: 0.2
+    
+    Label:
+        text: f"${root.totalAmount:.2f}"
+        color: hex('#eeeeee')  
+        size_hint_x: 0.15
+
+    Label:
+        font_name: 'Arial.ttf'
+        text: app.arabic_converter(root.customerName)
+        halign: "right"
+        color: hex('#eeeeee')  
+        size_hint_x: 0.3
+    
+    Label:
+        text: str(root.orderNumber)
+        color: hex('#eeeeee')  
+        size_hint_x: 0.1
